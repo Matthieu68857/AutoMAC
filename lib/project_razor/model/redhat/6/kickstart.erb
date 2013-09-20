@@ -5,14 +5,14 @@
 install
 url --url=http://<%= config.image_svc_host %>:<%= config.image_svc_port %>/razor/image/os/<%= @image_uuid %>
 text
-lang en_US.UTF-8
-keyboard us
+lang <%= @langue_os %>
+keyboard <%= @clavier_os %>
 rootpw <%= @root_password %>
 network --hostname <%= hostname %>
 firewall --service=ssh
 authconfig --enableshadow --passalgo=sha512 --enablefingerprint
 selinux --disabled
-timezone --utc America/Denver
+timezone --utc <%= @timezone_os %>
 bootloader --location=mbr --driveorder=sda --append=crashkernel=auto rhgb quiet
 # The following is the partition information you requested
 # Note that any partitions you deleted are not expressed
@@ -20,17 +20,51 @@ bootloader --location=mbr --driveorder=sda --append=crashkernel=auto rhgb quiet
 # not guaranteed to work
 zerombr
 clearpart --all --initlabel
+
+<% if @autopart == "true"%>
 autopart
+<% else %>
+part /boot --asprimary --fstype="ext4" --size=200
+part pv.0  --asprimary --size=1 --grow
+volgroup VG_SYS --pesize=4096 pv.0
+logvol /home --fstype=ext3 --name=LV_HOME --vgname=VG_SYS --size=<%= @home_partition_size %>
+logvol /opt --fstype=ext3 --name=LV_OPT --vgname=VG_SYS --size=<%= @opt_partition_size %>
+logvol / --fstype=ext3 --name=LV_ROOT --vgname=VG_SYS --size=<%= @root_partition_size %>
+logvol swap --name=LV_SWAP --vgname=VG_SYS --size=<%= @swap_partition_size %>
+logvol /tmp --fstype=ext3 --name=LV_TMP --vgname=VG_SYS --size=<%= @tmp_partition_size %>
+logvol /var --fstype=ext3 --name=LV_VAR --vgname=VG_SYS --size=<%= @var_partition_size %>
+<% end %>
+
+#repo --name="AutoMAC Repository"  --baseurl=http://192.168.0.4/centos/6.4/i386
+
 # reboot automatically
 reboot
 
 # followig is MINIMAL https://partner-bugzilla.redhat.com/show_bug.cgi?id=593309
-%packages --nobase
+%packages --nobase --ignoremissing
+@base
+@console-internet
 @core
+@debugging
+@directory-client
+@hardware-monitoring
+@large-systems
+@network-file-system-client
+@performance
+@perl-runtime
+mtools
+pax
+python-dmidecode
+dos2unix
 
 %end
 
 %post --log=/root/razor-post.log
+echo "[automac]
+name=AutoMAC
+baseurl=http://192.168.0.4/centos/6.4/i386
+enabled=1
+gpgcheck=0" > /etc/yum.repos.d/automac.repo
 curl <%= api_svc_uri %>/policy/callback/<%= policy_uuid %>/kickstart/end
 curl -o /tmp/razor_postinstall.sh <%= api_svc_uri %>/policy/callback/<%= policy_uuid %>/postinstall/inject
 echo bash /tmp/razor_postinstall.sh >> /etc/rc.local
