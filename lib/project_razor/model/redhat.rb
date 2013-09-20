@@ -53,10 +53,80 @@ module ProjectRazor
             "@root_password" => {
                 :default     => "test1234",
                 :example     => "P@ssword!",
-                :validation  => '^[\S]{8,}',
+                :validation  => '^[\S]{1,}',
                 :required    => true,
-                :description => "root password (> 8 characters)"
+                :description => "root password (> 1 characters)"
             },
+	    "@root_partition_size" => {
+                :default     => "16384",
+                :example     => "6144",
+                :validation  => '^\d+$',
+                :required    => true,
+                :description => "size (in megabytes) of root partition (valid if autopart == false)"
+            },
+            "@swap_partition_size" => {
+                :default     => "8192",
+                :example     => "2048",
+                :validation  => '^\d+$',
+                :required    => true,
+                :description => "size (in megabytes) of swap partition (valid if autopart == false)"
+            },
+            "@autopart" => {
+                :default     => "true",
+                :example     => "false",
+                :validation  => '(true|false)',
+                :required    => true,
+                :description => "if you want to use 'autopart' option"
+            },	
+            "@home_partition_size" => {
+                :default     => "128",
+                :example     => "128",
+                :validation  => '^\d+$',
+                :required    => true,
+                :description => "size (in megabytes) of /home partition (valid if autopart == false)"
+            },
+            "@opt_partition_size" => {
+                :default     => "128",
+                :example     => "128",
+                :validation  => '^\d+$',
+                :required    => true,
+                :description => "size (in megabytes) of /opt partition (valid if autopart == false)"
+            },
+            "@tmp_partition_size" => {
+                :default     => "2048",
+                :example     => "2048",
+                :validation  => '^\d+$',
+                :required    => true,
+                :description => "size (in megabytes) of /tmp partition (valid if autopart == false)"
+            },
+            "@var_partition_size" => {
+                :default     => "2048",
+                :example     => "2048",
+                :validation  => '^\d+$',
+                :required    => true,
+                :description => "size (in megabytes) of /var partition (valid if autopart == false)"
+            },
+            "@langue_os" => {
+                :default     => "fr_FR",
+                :example     => "fr_FR",
+                :validation  => '^[\S]*',
+                :required    => true,
+                :description => "Langue"
+            },
+            "@clavier_os" => {
+                :default     => "fr-latin0",
+                :example     => "fr-latin0",
+                :validation  => '^[\S]*',
+                :required    => true,
+                :description => "Clavier"
+            },
+            "@timezone_os" => {
+                :default     => "Europe/Paris",
+                :example     => "Europe/Paris",
+                :validation  => '^[\S]*',
+                :required    => true,
+                :description => "Timezone"
+            }
         }
       end
 
